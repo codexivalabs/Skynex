@@ -1,25 +1,28 @@
 "use client"
 import React from "react";
 import { motion } from "framer-motion";
-import { MapPin, Phone, Clock, Navigation, ExternalLink } from "lucide-react";
+import { MapPin, Phone, Clock, Navigation } from "lucide-react";
 
-const Location = () => {
-  // Store Location Details
-  const storeInfo = {
-    name: "SKYNEX Mobile Repair Workshop & Institute",
-    address: "Main Market, Jhelum, Punjab, Pakistan",
-    phone: "+92 340 3800000",
-    email: "contact@skynex.com",
-    hours: [
-      { days: "Monday - Saturday", time: "09:00 AM - 08:00 PM" },
-      { days: "Friday", time: "Break: 1:00 PM - 2:30 PM" },
-      { days: "Sunday", time: "Closed / Emergency Service" },
-    ],
-    // Google Maps Embed Query String
-    mapEmbedUrl:
-      "https://maps.google.com/maps?q=Jhelum%20Punjab%20Pakistan&t=&z=14&ie=UTF8&iwloc=&output=embed",
-    directMapUrl: "https://maps.google.com/?q=Jhelum+Punjab+Pakistan",
-  };
+// Fallback content used only if the location row / hours haven't been
+// set up in the database yet, so the page never renders blank.
+const DEFAULT_INFO = {
+  address: "Main Market, Jhelum, Punjab, Pakistan",
+  phone: "+92 340 3800000",
+  email: "contact@skynex.com",
+  map_embed_url:
+    "https://maps.google.com/maps?q=Jhelum%20Punjab%20Pakistan&t=&z=14&ie=UTF8&iwloc=&output=embed",
+  direct_map_url: "https://maps.google.com/?q=Jhelum+Punjab+Pakistan",
+};
+
+const DEFAULT_HOURS = [
+  { days: "Monday - Saturday", time_range: "09:00 AM - 08:00 PM" },
+  { days: "Friday", time_range: "Break: 1:00 PM - 2:30 PM" },
+  { days: "Sunday", time_range: "Closed / Emergency Service" },
+];
+
+const Location = ({ location, hours }) => {
+  const storeInfo = { ...DEFAULT_INFO, ...(location || {}) };
+  const businessHours = hours && hours.length ? hours : DEFAULT_HOURS;
 
   return (
     <section id="location" className="py-20 bg-gray-50/60 relative overflow-hidden">
@@ -110,10 +113,10 @@ const Location = () => {
                 <div className="w-full">
                   <h4 className="text-sm font-bold text-gray-900 mb-2">Working Hours</h4>
                   <div className="space-y-1.5 text-xs sm:text-sm">
-                    {storeInfo.hours.map((item, idx) => (
-                      <div key={idx} className="flex justify-between text-gray-600">
+                    {businessHours.map((item, idx) => (
+                      <div key={item.id ?? idx} className="flex justify-between text-gray-600">
                         <span className="font-medium">{item.days}</span>
-                        <span className="text-gray-900 font-semibold">{item.time}</span>
+                        <span className="text-gray-900 font-semibold">{item.time_range}</span>
                       </div>
                     ))}
                   </div>
@@ -124,7 +127,7 @@ const Location = () => {
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row items-center gap-3">
               <a
-                href={storeInfo.directMapUrl}
+                href={storeInfo.direct_map_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl font-semibold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-md hover:shadow-lg transition-all"
@@ -153,7 +156,7 @@ const Location = () => {
           >
             <iframe
               title="SKYNEX Google Map Location"
-              src={storeInfo.mapEmbedUrl}
+              src={storeInfo.map_embed_url}
               className="w-full h-full border-0 rounded-3xl"
               allowFullScreen=""
               loading="lazy"

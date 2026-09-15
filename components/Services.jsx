@@ -1,96 +1,27 @@
 "use client"
 import React from "react";
 import { motion } from "framer-motion";
-import {
-  Smartphone,
-  Laptop,
-  GraduationCap,
-  Wrench,
-  Headphones,
-  FileCode2,
-  Cpu,
-  ArrowRight,
-} from "lucide-react";
+import { Cpu, ArrowRight } from "lucide-react";
+import { getIcon } from "@/lib/icon-map";
+import { getGradientClass, getLightBgClass } from "@/lib/theme-colors";
 
-const services = [
+// Fallback content used only if no services were loaded from the database.
+const DEFAULT_SERVICES = [
   {
     id: "mobile-repair",
-    icon: Smartphone,
+    icon_name: "Smartphone",
     title: "Mobile Hardware & Software Repair",
     description:
       "Expert chip-level hardware repair, screen replacements, motherboard troubleshooting, and original firmware flashing.",
     tag: "Core Service",
-    color: "from-blue-500 to-indigo-600",
-    lightBg: "bg-blue-50 text-blue-600 border-blue-100",
-  },
-  {
-    id: "pc-repair",
-    icon: Laptop,
-    title: "PC & Laptop Diagnostics",
-    description:
-      "Complete laptop and PC maintenance including GPU repair, RAM/SSD upgrades, power IC replacement, and OS recovery.",
-    tag: "Popular",
-    color: "from-purple-500 to-indigo-600",
-    lightBg: "bg-purple-50 text-purple-600 border-purple-100",
-  },
-  {
-    id: "online-courses",
-    icon: GraduationCap,
-    title: "Online & Onsite Courses",
-    description:
-      "Master modern micro-soldering, schematics reading, and AI-assisted troubleshooting with our certified repair courses.",
-    tag: "Institute",
-    color: "from-orange-500 to-amber-600",
-    lightBg: "bg-orange-50 text-orange-600 border-orange-100",
-  },
-  {
-    id: "accessories",
-    icon: Headphones,
-    title: "Premium Mobile & PC Accessories",
-    description:
-      "High-grade tempered glass, fast chargers, original flex cables, data lines, and premium audio gear.",
-    tag: "Store",
-    color: "from-cyan-500 to-blue-600",
-    lightBg: "bg-cyan-50 text-cyan-600 border-cyan-100",
-  },
-  {
-    id: "parts-tools",
-    icon: Wrench,
-    title: "Repair Tools & Stencils Sourcing",
-    description:
-      "Professional lab tools, reballing stencils, digital microscopes, DC power supplies, and soldering stations.",
-    tag: "Hardware",
-    color: "from-indigo-500 to-purple-600",
-    lightBg: "bg-indigo-50 text-indigo-600 border-indigo-100",
-  },
-  {
-    id: "schematics-downloads",
-    icon: FileCode2,
-    title: "Schematics & Diagram Downloads",
-    description:
-      "Instant access to tested bitmap diagrams, schematic PDFs, pinout maps, and official repair dumps.",
-    tag: "Digital Assets",
-    color: "from-emerald-500 to-teal-600",
-    lightBg: "bg-emerald-50 text-emerald-600 border-emerald-100",
+    color_from: "blue-500",
+    color_to: "indigo-600",
   },
 ];
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
+const Services = ({ services }) => {
+  const list = services && services.length ? services : DEFAULT_SERVICES;
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-};
-
-const Services = () => {
   return (
     <section id="services" className="py-20 bg-gray-50/60 relative overflow-hidden">
       {/* Background Subtle Accent Lines */}
@@ -135,18 +66,20 @@ const Services = () => {
 
         {/* Services Grid */}
         <motion.div
-          variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
+          variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          {services.map((service) => {
-            const Icon = service.icon;
+          {list.map((service) => {
+            const Icon = getIcon(service.icon_name);
+            const gradient = getGradientClass(service.color_from, service.color_to);
+            const badge = getLightBgClass(service.color_from);
             return (
               <motion.div
                 key={service.id}
-                variants={cardVariants}
+                variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }}
                 whileHover={{ y: -6 }}
                 className="group relative bg-white rounded-3xl p-8 border border-gray-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 flex flex-col justify-between"
               >
@@ -154,13 +87,11 @@ const Services = () => {
                   {/* Top Bar: Icon + Badge */}
                   <div className="flex items-center justify-between mb-6">
                     <div
-                      className={`w-14 h-14 rounded-2xl bg-gradient-to-tr ${service.color} text-white flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110`}
+                      className={`w-14 h-14 rounded-2xl bg-gradient-to-tr ${gradient} text-white flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110`}
                     >
                       <Icon className="w-7 h-7" />
                     </div>
-                    <span
-                      className={`px-3 py-1 text-xs font-bold rounded-full border ${service.lightBg}`}
-                    >
+                    <span className={`px-3 py-1 text-xs font-bold rounded-full border ${badge}`}>
                       {service.tag}
                     </span>
                   </div>

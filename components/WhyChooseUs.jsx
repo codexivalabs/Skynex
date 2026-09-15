@@ -2,89 +2,26 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import {
-  ShieldCheck,
-  Cpu,
-  Award,
-  Truck,
-  Headphones,
-  Zap,
-  CheckCircle2,
-} from "lucide-react";
+import { ShieldCheck, CheckCircle2 } from "lucide-react";
+import { getIcon } from "@/lib/icon-map";
+import { getGradientClass, getLightBgClass } from "@/lib/theme-colors";
 
-const features = [
+// Fallback content used only if no features were loaded from the database.
+const DEFAULT_FEATURES = [
   {
-    icon: ShieldCheck,
+    icon_name: "ShieldCheck",
     title: "100% Tested & Original Parts",
     description:
       "We source and supply only lab-verified screens, flexes, micro-components, and diagnostic equipment.",
     badge: "Quality Assured",
-    color: "from-blue-500 to-indigo-600",
-    lightBg: "bg-blue-50 text-blue-600",
-  },
-  {
-    icon: Cpu,
-    title: "AI-Powered Diagnostics",
-    description:
-      "Leverage smart fault-finding, schematics mapping, and AI assistance to diagnose tricky motherboard issues faster.",
-    badge: "Smart Tech",
-    color: "from-purple-500 to-indigo-600",
-    lightBg: "bg-purple-50 text-purple-600",
-  },
-  {
-    icon: Award,
-    title: "Certified Master Trainers",
-    description:
-      "Learn micro-soldering and CPU reballing directly from experienced technicians with years of practical shop floor experience.",
-    badge: "Expert Instructors",
-    color: "from-orange-500 to-amber-600",
-    lightBg: "bg-orange-50 text-orange-600",
-  },
-  {
-    icon: Zap,
-    title: "Rapid Repair Turnaround",
-    description:
-      "Fast diagnostics and swift repair turnarounds to get your smartphones and PCs back to peak performance with zero hassle.",
-    badge: "Fast Delivery",
-    color: "from-cyan-500 to-blue-600",
-    lightBg: "bg-cyan-50 text-cyan-600",
-  },
-  {
-    icon: Truck,
-    title: "Global Parts & Tool Sourcing",
-    description:
-      "Can't find a rare IC or specialized reballing stencil? We handle global sourcing and dispatch items directly to your door.",
-    badge: "Worldwide Logistics",
-    color: "from-indigo-500 to-purple-600",
-    lightBg: "bg-indigo-50 text-indigo-600",
-  },
-  {
-    icon: Headphones,
-    title: "Dedicated Post-Repair Support",
-    description:
-      "Get continuous technical support, schematic consultation, and repair assistance even after course completion or service.",
-    badge: "24/7 Assistance",
-    color: "from-emerald-500 to-teal-600",
-    lightBg: "bg-emerald-50 text-emerald-600",
+    color_from: "blue-500",
+    color_to: "indigo-600",
   },
 ];
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
+const WhyChooseUs = ({ features }) => {
+  const list = features && features.length ? features : DEFAULT_FEATURES;
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-};
-
-const WhyChooseUs = () => {
   return (
     <section id="why-choose-us" className="py-20 bg-white relative overflow-hidden">
       {/* Background Radial Glow */}
@@ -129,18 +66,20 @@ const WhyChooseUs = () => {
 
         {/* Features Grid */}
         <motion.div
-          variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
+          variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          {features.map((feature, idx) => {
-            const Icon = feature.icon;
+          {list.map((feature, idx) => {
+            const Icon = getIcon(feature.icon_name);
+            const gradient = getGradientClass(feature.color_from, feature.color_to);
+            const badge = getLightBgClass(feature.color_from);
             return (
               <motion.div
-                key={idx}
-                variants={cardVariants}
+                key={feature.id ?? idx}
+                variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }}
                 whileHover={{ y: -6 }}
                 className="group relative bg-white rounded-3xl p-8 border border-gray-100 shadow-lg shadow-slate-100/80 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 flex flex-col justify-between"
               >
@@ -148,13 +87,11 @@ const WhyChooseUs = () => {
                   {/* Top Header: Icon & Badge */}
                   <div className="flex items-center justify-between mb-6">
                     <div
-                      className={`w-14 h-14 rounded-2xl bg-gradient-to-tr ${feature.color} text-white flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110`}
+                      className={`w-14 h-14 rounded-2xl bg-gradient-to-tr ${gradient} text-white flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110`}
                     >
                       <Icon className="w-7 h-7" />
                     </div>
-                    <span
-                      className={`px-3 py-1 text-xs font-bold rounded-full ${feature.lightBg}`}
-                    >
+                    <span className={`px-3 py-1 text-xs font-bold rounded-full ${badge}`}>
                       {feature.badge}
                     </span>
                   </div>

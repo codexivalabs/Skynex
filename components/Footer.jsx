@@ -1,5 +1,5 @@
 "use client"
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
   MapPin,
@@ -7,7 +7,8 @@ import {
   Mail,
   Send,
   ArrowUp,
-  Heart,
+  Loader2,
+  Check,
 } from "lucide-react";
 
 // Custom Social Icon Components (Replaces missing Lucide exports)
@@ -35,33 +36,81 @@ const TwitterIcon = (props) => (
   </svg>
 );
 
-const quickLinks = [
-  { name: "Online Courses", href: "#online-courses" },
-  { name: "Onsite Training", href: "#onsite" },
-  { name: "AI+ Fault Finder", href: "#ai-plus" },
-  { name: "Schematic Downloads", href: "#downloads" },
-  { name: "Parts & Tools Store", href: "#parts-tools" },
-  { name: "Sourcing Service", href: "#sourcing" },
+const SOCIAL_ICON_MAP = {
+  facebook: { Icon: FacebookIcon, name: "Facebook", color: "hover:bg-blue-600" },
+  instagram: { Icon: InstagramIcon, name: "Instagram", color: "hover:bg-purple-600" },
+  youtube: { Icon: YoutubeIcon, name: "YouTube", color: "hover:bg-red-600" },
+  twitter: { Icon: TwitterIcon, name: "Twitter", color: "hover:bg-sky-500" },
+};
+
+// Fallback content used only if no data was loaded from the database.
+const DEFAULT_QUICK_LINKS = [
+  { name: "Online Courses", href: "/online-courses" },
+  { name: "Onsite Training", href: "/onsite" },
+  { name: "AI+ Fault Finder", href: "/ai-plus" },
+  { name: "Schematic Downloads", href: "/downloads" },
+  { name: "Parts & Tools Store", href: "/parts-tools" },
+  { name: "Sourcing Service", href: "/sourcing" },
 ];
 
-const repairServices = [
-  { name: "Mobile Screen & Glass Replacement", href: "#services" },
-  { name: "Motherboard & Chip-Level Repair", href: "#services" },
-  { name: "CPU & Power IC Reballing", href: "#services" },
-  { name: "PC & Laptop Hardware Upgrades", href: "#services" },
-  { name: "Firmware Flashing & Unlocking", href: "#services" },
+const DEFAULT_SERVICE_LINKS = [
+  { name: "Mobile Screen & Glass Replacement", href: "/#services" },
+  { name: "Motherboard & Chip-Level Repair", href: "/#services" },
 ];
 
-const socialLinks = [
-  { icon: FacebookIcon, href: "#", name: "Facebook", color: "hover:bg-blue-600" },
-  { icon: InstagramIcon, href: "#", name: "Instagram", color: "hover:bg-purple-600" },
-  { icon: YoutubeIcon, href: "#", name: "YouTube", color: "hover:bg-red-600" },
-  { icon: TwitterIcon, href: "#", name: "Twitter", color: "hover:bg-sky-500" },
+const DEFAULT_SOCIAL = [
+  { platform: "facebook", url: "#" },
+  { platform: "instagram", url: "#" },
+  { platform: "youtube", url: "#" },
+  { platform: "twitter", url: "#" },
 ];
 
-const Footer = () => {
+const DEFAULT_SETTINGS = {
+  site_name: "SKYNEX",
+  logo_url: "/logo.png",
+  footer_about:
+    "Your trusted partner for professional mobile & PC repairs, AI diagnostic tools, original spare parts, and certified technician courses.",
+  phone: "+92 340 3800000",
+  email: "contact@skynex.com",
+  address: "Main Market, Jhelum, Punjab, Pakistan",
+  copyright_text: "SKYNEX. All rights reserved.",
+};
+
+const Footer = ({ settings, quickLinks, serviceLinks, social }) => {
+  const site = { ...DEFAULT_SETTINGS, ...(settings || {}) };
+  const links = quickLinks && quickLinks.length ? quickLinks : DEFAULT_QUICK_LINKS;
+  const repairServices = serviceLinks && serviceLinks.length ? serviceLinks : DEFAULT_SERVICE_LINKS;
+  const socialLinks = social && social.length ? social : DEFAULT_SOCIAL;
+
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("idle"); // idle | loading | success | error
+  const [errorMsg, setErrorMsg] = useState("");
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (status === "loading") return;
+    setStatus("loading");
+    setErrorMsg("");
+    try {
+      const res = await fetch("/api/public/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong.");
+      }
+      setStatus("success");
+      setEmail("");
+    } catch (err) {
+      setStatus("error");
+      setErrorMsg(err.message);
+    }
   };
 
   return (
@@ -73,38 +122,54 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 pb-12 border-b border-gray-100">
           
           <div className="lg:col-span-4 space-y-6">
-            <a href="#" className="flex items-center gap-3">
+            <a href="/" className="flex items-center gap-3">
               <img
-                src="/logo.png"
-                alt="SKYNEX Logo"
+                src={site.logo_url}
+                alt={`${site.site_name} Logo`}
                 className="h-12 w-auto object-contain"
               />
             </a>
 
             <p className="text-sm leading-relaxed text-gray-600 max-w-sm">
-              Your trusted partner for professional mobile & PC repairs, AI diagnostic tools, original spare parts, and certified technician courses.
+              {site.footer_about}
             </p>
 
             <div className="space-y-3 pt-2">
               <p className="text-xs font-bold text-gray-900 uppercase tracking-wider">
                 Subscribe for Schematics & Deals
               </p>
-              <form onSubmit={(e) => e.preventDefault()} className="flex items-center gap-2">
+              <form onSubmit={handleSubscribe} className="flex items-center gap-2">
                 <div className="relative w-full">
                   <input
                     type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
                     className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-800 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="p-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md shadow-blue-500/20 hover:shadow-lg transition-all shrink-0"
+                  disabled={status === "loading"}
+                  className="p-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md shadow-blue-500/20 hover:shadow-lg transition-all shrink-0 disabled:opacity-60"
                   aria-label="Subscribe"
                 >
-                  <Send className="w-4 h-4" />
+                  {status === "loading" ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : status === "success" ? (
+                    <Check className="w-4 h-4" />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
                 </button>
               </form>
+              {status === "success" && (
+                <p className="text-xs font-semibold text-emerald-600">Subscribed! Check your inbox soon.</p>
+              )}
+              {status === "error" && (
+                <p className="text-xs font-semibold text-red-500">{errorMsg}</p>
+              )}
             </div>
           </div>
 
@@ -113,7 +178,7 @@ const Footer = () => {
               Quick Links
             </h4>
             <ul className="space-y-2.5 text-sm font-medium">
-              {quickLinks.map((link) => (
+              {links.map((link) => (
                 <li key={link.name}>
                   <a
                     href={link.href}
@@ -151,18 +216,18 @@ const Footer = () => {
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                <span>Main Market, Jhelum, Punjab, Pakistan</span>
+                <span>{site.address}</span>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-purple-600 shrink-0" />
-                <a href="tel:+923403800000" className="hover:text-blue-600 transition-colors">
-                  +92 340 3800000
+                <a href={`tel:${site.phone}`} className="hover:text-blue-600 transition-colors">
+                  {site.phone}
                 </a>
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-orange-500 shrink-0" />
-                <a href="mailto:faizan34038@gmail.com" className="hover:text-blue-600 transition-colors">
-                  contact@skynex.com
+                <a href={`mailto:${site.email}`} className="hover:text-blue-600 transition-colors">
+                  {site.email}
                 </a>
               </div>
             </div>
@@ -171,17 +236,18 @@ const Footer = () => {
         </div>
 
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-gray-500">
-          <p>© {new Date().getFullYear()} SKYNEX. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {site.copyright_text}</p>
 
           <div className="flex items-center gap-2">
-            {socialLinks.map((social) => {
-              const Icon = social.icon;
+            {socialLinks.map((s) => {
+              const meta = SOCIAL_ICON_MAP[s.platform] || SOCIAL_ICON_MAP.facebook;
+              const Icon = meta.Icon;
               return (
                 <a
-                  key={social.name}
-                  href={social.href}
-                  aria-label={social.name}
-                  className={`w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 hover:text-white ${social.color} transition-all duration-300 shadow-sm`}
+                  key={s.platform}
+                  href={s.url}
+                  aria-label={meta.name}
+                  className={`w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 hover:text-white ${meta.color} transition-all duration-300 shadow-sm`}
                 >
                   <Icon />
                 </a>

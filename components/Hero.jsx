@@ -12,7 +12,27 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-const Hero = () => {
+// Fallback content used only if the hero row hasn't been set up in the
+// database yet, so the page never renders blank.
+const DEFAULTS = {
+  badge_text: "Next-Gen Mobile Repair Institute & AI Sourcing",
+  heading_main: "Master Advanced Mobile Repairing with",
+  heading_highlight: "SKYNEX",
+  subtitle:
+    "From hardware chip-level diagnostics to AI-powered troubleshooting, premium tool sourcing, and instant schematic downloads — elevate your mobile repair career today.",
+  cta_primary_text: "Explore Courses",
+  cta_primary_link: "/online-courses",
+  cta_secondary_text: "Watch Demo",
+  cta_secondary_link: "#demo",
+  highlight_1: "Onsite & Online Classes",
+  highlight_2: "AI+ Hardware Diagnostic",
+  highlight_3: "Verified Parts & Tools",
+  trust_text: "Trusted by 5,000+ Mobile Technicians Worldwide",
+};
+
+const Hero = ({ hero }) => {
+  const data = { ...DEFAULTS, ...(hero || {}) };
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/40 via-white to-white pt-12 pb-20 lg:pt-20 lg:pb-32">
       {/* Background Decorative Gradient Blobs */}
@@ -40,36 +60,36 @@ const Hero = () => {
               className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs sm:text-sm font-semibold mb-6 shadow-sm"
             >
               <Sparkles className="w-4 h-4 text-orange-500 fill-orange-500" />
-              <span>Next-Gen Mobile Repair Institute & AI Sourcing</span>
+              <span>{data.badge_text}</span>
             </motion.div>
 
             {/* Main Headline */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 leading-[1.15]">
-              Master Advanced Mobile Repairing with{" "}
+              {data.heading_main}{" "}
               <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-orange-500 bg-clip-text text-transparent">
-                SKYNEX
+                {data.heading_highlight}
               </span>
             </h1>
 
             {/* Subtitle */}
             <p className="mt-5 text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl">
-              From hardware chip-level diagnostics to AI-powered troubleshooting, premium tool sourcing, and instant schematic downloads — elevate your mobile repair career today.
+              {data.subtitle}
             </p>
 
             {/* CTA Buttons */}
             <div className="mt-8 flex flex-wrap items-center gap-4 w-full sm:w-auto">
               <motion.a
-                href="#courses"
+                href={data.cta_primary_link}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/35 transition-all w-full sm:w-auto text-center"
               >
-                <span>Explore Courses</span>
+                <span>{data.cta_primary_text}</span>
                 <ArrowRight className="w-4 h-4" />
               </motion.a>
 
               <motion.a
-                href="#demo"
+                href={data.cta_secondary_link}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl font-semibold text-gray-700 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 shadow-sm transition-all w-full sm:w-auto text-center"
@@ -77,7 +97,7 @@ const Hero = () => {
                 <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                   <Play className="w-3 h-3 fill-current ml-0.5" />
                 </div>
-                <span>Watch Demo</span>
+                <span>{data.cta_secondary_text}</span>
               </motion.a>
             </div>
 
@@ -85,15 +105,15 @@ const Hero = () => {
             <div className="mt-10 pt-8 border-t border-gray-100 grid grid-cols-2 sm:grid-cols-3 gap-4 w-full text-xs sm:text-sm text-gray-600 font-medium">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-blue-600" />
-                <span>Onsite & Online Classes</span>
+                <span>{data.highlight_1}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-purple-600" />
-                <span>AI+ Hardware Diagnostic</span>
+                <span>{data.highlight_2}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-orange-500" />
-                <span>Verified Parts & Tools</span>
+                <span>{data.highlight_3}</span>
               </div>
             </div>
           </motion.div>
@@ -169,7 +189,7 @@ const Hero = () => {
               {/* Card Footer Badge */}
               <div className="mt-4 pt-3 text-center border-t border-gray-100">
                 <span className="text-xs text-gray-400 font-medium">
-                  Trusted by 5,000+ Mobile Technicians Worldwide
+                  {data.trust_text}
                 </span>
               </div>
             </div>

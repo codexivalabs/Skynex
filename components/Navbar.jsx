@@ -2,10 +2,12 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePathname } from "next/navigation";
 import { Menu, X, User } from "lucide-react";
 
-// Nav menu items
-const navLinks = [
+// Fallback nav items used only if no data was loaded from the database
+// (e.g. the DB is unreachable) so the site never renders with an empty menu.
+const DEFAULT_NAV_LINKS = [
   { name: "Online Courses", href: "/online-courses" },
   { name: "Onsite", href: "/onsite" },
   { name: "AI+", href: "/ai-plus", badge: "NEW" },
@@ -14,9 +16,10 @@ const navLinks = [
   { name: "Sourcing", href: "/sourcing" },
 ];
 
-const Navbar = () => {
+const Navbar = ({ navLinks, logoUrl = "/logo.png", siteName = "SKYNEX" }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("Online Courses");
+  const pathname = usePathname();
+  const links = navLinks && navLinks.length ? navLinks : DEFAULT_NAV_LINKS;
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300">
@@ -24,25 +27,23 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20">
           
           {/* Logo Section */}
-          <a href="#" className="flex items-center gap-3">
-            {/* Replace /logo.png with your actual image path */}
+          <a href="/" className="flex items-center gap-3">
             <img 
-              src="/logo.png" 
-              alt="SKYNEX Logo" 
+              src={logoUrl} 
+              alt={`${siteName} Logo`} 
               className="h-12 w-auto object-contain"
             />
           </a>
 
           {/* Desktop Navigation Links */}
           <div className="hidden lg:flex items-center space-x-1">
-            {navLinks.map((link) => {
-              const isActive = activeTab === link.name;
+            {links.map((link) => {
+              const isActive = pathname === link.href;
 
               return (
                 <a
                   key={link.name}
                   href={link.href}
-                  onClick={() => setActiveTab(link.name)}
                   className={`relative px-4 py-2 text-sm font-semibold transition-colors duration-200 ${
                     isActive ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
                   }`}
@@ -105,16 +106,13 @@ const Navbar = () => {
             className="lg:hidden bg-white border-b border-gray-100 px-4 pt-2 pb-6 shadow-xl overflow-hidden"
           >
             <div className="flex flex-col gap-1">
-              {navLinks.map((link) => {
-                const isActive = activeTab === link.name;
+              {links.map((link) => {
+                const isActive = pathname === link.href;
                 return (
                   <a
                     key={link.name}
                     href={link.href}
-                    onClick={() => {
-                      setActiveTab(link.name);
-                      setMobileMenuOpen(false);
-                    }}
+                    onClick={() => setMobileMenuOpen(false)}
                     className={`flex items-center justify-between p-3 rounded-xl text-base font-semibold transition-colors ${
                       isActive
                         ? "bg-blue-50 text-blue-600"
